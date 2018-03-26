@@ -13,8 +13,7 @@ We also welcome pull requests for bug fixes and feature additions.
 
 # How to Use
 
-![screenshot](https://raw.githubusercontent.com/ElectronicTheatreControlsLabs/UDPMidiTest/master/doc/screenshot_main.png)
-
+![screenshot](https://raw.githubusercontent.com/ETCLabs/UDPMidiTest/master/doc/screenshot_main.png)
 
 When you run the application, the first step is to select the network card (NIC) which is connected to the same network as the MIDI gateway.
 Next, in order to send MIDI to the gateway (which will be then transmitted through the "Out" connection of the gateway as physical MIDI), enter the IP address of the gateway.
