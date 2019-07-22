@@ -9,7 +9,7 @@ UdpMidiTest is open-source software (developed by a combination of end users and
 We also welcome pull requests for bug fixes and feature additions.
 
 # Download
-[Download Now For Windows](https://github.com/ElectronicTheatreControlsLabs/UDPMidiTest/releases/)
+[Download Now For Windows](https://github.com/ETCLabs/UDPMidiTest/releases)
 
 # How to Use
 
