@@ -186,6 +186,7 @@ void MainWindow::on_btnStart_pressed()
     ui->btnStart->setEnabled(false);
     ui->sbTargetPort->setEnabled(false);
     ui->leTargetIp->setEnabled(false);
+    ui->cbNic->setEnabled(false);
 
 }
 
@@ -285,6 +286,26 @@ void MainWindow::midiMessageRecieve(const QByteArray &data)
             packedMsg |= (quint8)theMidi[2] << 16;
             midiOutShortMsg(m_midiOut, packedMsg);
         }
+    }
+
+    if(memcmp(theMidi.data(), &MidiData::TIMECODE_START, sizeof(MidiData::TIMECODE_START)) == 0)
+    {
+        int index = sizeof(MidiData::TIMECODE_START);
+        quint8 hours = theMidi.at(index);
+        index++;
+        quint8 minutes = theMidi.at(index);
+        index++;
+        quint8 seconds = theMidi.at(index);
+        index++;
+        quint8 frames = theMidi.at(index);
+
+        QString value = QString("%1:%2:%3:%4")
+                .arg(hours, 2, 10, QLatin1Char('0'))
+                .arg(minutes, 2, 10, QLatin1Char('0'))
+                .arg(seconds, 2, 10, QLatin1Char('0'))
+                .arg(frames, 2, 10, QLatin1Char('0'));
+
+        ui->nTimecode->display(value);
     }
 
 }

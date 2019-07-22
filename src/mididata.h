@@ -110,6 +110,8 @@ enum MidiCommandFormats {
 };
 Q_ENUM(MidiCommandFormats);
 
+constexpr static const unsigned char TIMECODE_START[] = {0xF0, 0x7F, 0x7F, 0x01, 0x01};
+
 enum MidiMscCommands {
     MSC_COMMAND_RESERVED = 0x00,
     MSC_COMMAND_GO = 0x01,
