@@ -197,11 +197,14 @@ void MainWindow::readData()
     {
         QNetworkDatagram datagram = m_rxSocket->receiveDatagram();
 
-        ui->lvRxMessages->addItem(QString("%1:%2 - %3")
+        if(ui->cbLogAllInput->isChecked())
+        {
+            ui->lvRxMessages->addItem(QString("%1:%2 - %3")
                                   .arg(datagram.senderAddress().toString())
                                   .arg(datagram.senderPort())
                                   .arg(QString(datagram.data()))
                                   );
+        }
 
 
         midiMessageRecieve(datagram.data());

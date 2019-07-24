@@ -317,6 +317,13 @@ font: 8pt &quot;Courier New&quot;;</string>
          </widget>
         </item>
         <item>
+         <widget class="QCheckBox" name="cbLogAllInput">
+          <property name="text">
+           <string>Log All Messages</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QListWidget" name="lvRxMessages"/>
         </item>
        </layout>
