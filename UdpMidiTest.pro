@@ -18,7 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-PRODUCT_VERSION = 1.0.0
+PRODUCT_VERSION = 1.0.1
 
 QT       += core gui network xml svg
 
@@ -62,6 +62,7 @@ FORMS += \
 
 LIBS += -lwinmm
 
+RESOURCES += vkey/pianokeybd.qrc
 
 isEmpty(TARGET_EXT) {
     win32 {
@@ -90,5 +91,3 @@ CONFIG( release , debug | release) {
     QMAKE_POST_LINK += $$escape_expand(\\n\\t) $${DEPLOY_INSTALLER}
 }
 
-RESOURCES += \
-    vkey/pianokeybd.qrc
