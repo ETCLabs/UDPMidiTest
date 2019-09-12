@@ -24,6 +24,7 @@
 #include <QMainWindow>
 #include <QTimer>
 #include <QUdpSocket>
+#include <QFile>
 #include "windows.h"
 
 namespace Ui {
@@ -48,7 +49,10 @@ private slots:
     void on_leMSCData_textChanged(const QString &text);
     void updateMscCommand();
     void on_btnMSCSend_pressed();
+    void on_cbLogToFile_pressed();
 private:
+    void rotateLogFile();
+    void updateLogFileDisplay();
     Ui::MainWindow *ui;
     QUdpSocket *m_txSocket;
     QUdpSocket *m_rxSocket;
@@ -57,6 +61,9 @@ private:
     void midiMessageRecieve(const QByteArray &data);
     QByteArray m_mscCommand;
     QByteArray m_mscData;
+    QString m_logFileName;
+    QFile *m_logFile = Q_NULLPTR;
+    int m_msgCounter = 0;
 };
 
 

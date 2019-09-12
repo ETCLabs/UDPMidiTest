@@ -26,6 +26,11 @@
 #include <QNetworkDatagram>
 #include <QMetaEnum>
 #include <QDebug>
+#include <QFileDialog>
+#include <QDate>
+#include <QDateTime>
+#include <QAbstractEventDispatcher>
+#include <QTimer>
 
 QByteArray eosEncode(float value)
 {
@@ -52,6 +57,17 @@ QString stringToHex(quint8 value)
     QString result = QString("%1").arg(value, 2, 16, QChar('0'));
     return result.toUpper();
 }
+
+
+static int msecsTo(const QTime & at) {
+  const int msecsPerDay = 24 * 60 * 60 * 1000;
+  int msecs = QTime::currentTime().msecsTo(at);
+  if (msecs < 0) msecs += msecsPerDay;
+  return msecs;
+}
+
+
+
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -120,6 +136,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->cbMSCCommand, SIGNAL(currentIndexChanged(int)), this, SLOT(updateMscCommand()));
     connect(ui->cbMSCCommandFormat, SIGNAL(currentIndexChanged(int)), this, SLOT(updateMscCommand()));
     connect(ui->leMSCData, SIGNAL(textChanged(QString)), this, SLOT(updateMscCommand()));
+
+    updateLogFileDisplay();
+
 }
 
 MainWindow::~MainWindow()
@@ -195,6 +214,7 @@ void MainWindow::readData()
 {
     while (m_rxSocket->hasPendingDatagrams())
     {
+        m_msgCounter++;
         QNetworkDatagram datagram = m_rxSocket->receiveDatagram();
 
         if(ui->cbLogAllInput->isChecked())
@@ -204,6 +224,16 @@ void MainWindow::readData()
                                   .arg(datagram.senderPort())
                                   .arg(QString(datagram.data()))
                                   );
+        }
+        if(m_logFile)
+        {
+            QString logMsg = QString("%1,%2,%3\r\n")
+                    .arg(QTime::currentTime().toString("hh:mm:ss:zzz"))
+                    .arg(datagram.senderAddress().toString())
+                    .arg(QString::fromLatin1(datagram.data()));
+            m_logFile->write(logMsg.toUtf8());
+            m_logFile->flush();
+            updateLogFileDisplay();
         }
 
 
@@ -442,4 +472,67 @@ void MainWindow::on_leMSCData_textChanged(const QString &text)
 void MainWindow::on_btnMSCSend_pressed()
 {
     midiMessageSend((quint8*)m_mscCommand.data(), m_mscCommand.length());
+}
+
+void MainWindow::on_cbLogToFile_pressed()
+{
+    m_msgCounter = 0;
+    if(!ui->cbLogToFile->isChecked())
+    {
+        m_logFileName = QFileDialog::getSaveFileName(this, tr("Save Log File"), QString(), tr("Log Files (*.log)"));
+        if(m_logFileName.isEmpty())
+        {
+            m_logFileName = "";
+            m_logFile = Q_NULLPTR;
+            ui->cbLogToFile->setChecked(false);
+            return;
+        }
+        m_logFileName.chop(3); // Remove the .log postfix
+        rotateLogFile();
+        ui->cbLogToFile->setChecked(true);
+
+
+        // Rotate the log at midnight
+        auto timer = new QTimer(QAbstractEventDispatcher::instance());
+        timer->start(msecsTo(QTime(0,0,0)));
+        QObject::connect(timer, &QTimer::timeout, [=, &timer]{
+          this->rotateLogFile();
+          timer->deleteLater();
+        });
+    }
+    else {
+        ui->lbLogInfo->clear();
+    }
+}
+
+void MainWindow::rotateLogFile()
+{
+    if(m_logFile)
+    {
+        m_logFile->close();
+        m_logFile = Q_NULLPTR;
+    }
+
+    QString fileName = m_logFileName + QString("%1.log").arg(QDate::currentDate().toString("yy_MM_dd"));
+
+    m_logFile = new QFile(fileName);
+    if(!m_logFile->open(QIODevice::WriteOnly))
+    {
+        ui->cbLogToFile->setChecked(false);
+        m_logFile = Q_NULLPTR;
+    }
+    updateLogFileDisplay();
+
+}
+
+void MainWindow::updateLogFileDisplay()
+{
+    if(!m_logFile)
+        ui->lbLogInfo->clear();
+    else {
+       QString logInfo = tr("Logging to %1 : %2 messages")
+               .arg(m_logFile->fileName())
+               .arg(m_msgCounter);
+       ui->lbLogInfo->setText(logInfo);
+    }
 }
